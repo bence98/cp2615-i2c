@@ -23,3 +23,8 @@ int init_IOP_msg(struct IOP_msg *ret, enum IOP_msg_type msg, const void *data, s
 	} else
         return -5;
 }
+
+int init_IOP_I2c_msg(struct IOP_msg *ret, const struct IOP_I2cTransfer *data)
+{
+    return init_IOP_msg(ret, iop_DoI2cTransfer, data, 4 + data->write_len);
+}

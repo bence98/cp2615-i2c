@@ -11,6 +11,13 @@
 #include <stdlib.h>
 #include <stddef.h>
 
+#define CP2615_PID 0xeac1
+
+#define IOP_EP_IN  0x82
+#define IOP_EP_OUT 0x02
+#define IOP_IFN 1
+#define IOP_ALTSETTING 2
+
 #define MAX_IOP_SIZE 64
 #define MAX_IOP_PAYLOAD_SIZE MAX_IOP_SIZE-6
 #define MAX_I2C_SIZE MAX_IOP_PAYLOAD_SIZE-4
@@ -47,8 +54,10 @@ struct IOP_I2cTransfer {
 };
 
 struct IOP_I2cTransferResult {
-    unsigned char tag, i2caddr, status, read_len;
+	unsigned char tag, i2caddr, status, read_len;
 	char data[MAX_I2C_SIZE];
 };
+
+int init_IOP_I2c_msg(struct IOP_msg *ret, const struct IOP_I2cTransfer *data);
 
 #endif //CP2615_IOP_H

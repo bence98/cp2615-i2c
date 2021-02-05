@@ -72,6 +72,11 @@ static const struct i2c_algorithm cp2615_i2c_algo = {
 	.functionality	= cp2615_i2c_func,
 };
 
+struct i2c_adapter_quirks cp2615_i2c_quirks = {
+    .max_write_len = MAX_I2C_SIZE,
+    .max_read_len = MAX_I2C_SIZE,
+}
+
 static int
 cp2615_i2c_remove(struct usb_interface *usbif)
 {
@@ -105,6 +110,7 @@ cp2615_i2c_probe(struct usb_interface *usbif, const struct usb_device_id *id)
 	adap->nr = usbif->dev.id;
 	adap->timeout = HZ;
 	adap->algo = &iop3xx_i2c_algo;
+    adap->quirks = &cp2615_i2c_quirks;
 
 	usb_set_intfdata(usbif, adap);
 	adap->algo_data = usbif;

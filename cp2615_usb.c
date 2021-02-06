@@ -2,9 +2,13 @@
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <assert.h>
+
+#include <stdint.h>
+#include <stdlib.h>
+#include <stddef.h>
+
 #include "cp2615_iop.h"
 
-#define CP2615_VID 0x10c4
 #define TOUT_MS 2000
 
 #define PERROR(fn, ...) res=fn(__VA_ARGS__); \

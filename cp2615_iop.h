@@ -7,10 +7,7 @@
 #ifndef CP2615_IOP_H
 #define CP2615_IOP_H
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <stddef.h>
-
+#define CP2615_VID 0x10c4
 #define CP2615_PID 0xeac1
 
 #define IOP_EP_IN  0x82

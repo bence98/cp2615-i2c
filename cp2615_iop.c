@@ -4,8 +4,16 @@
  *  Source: https://www.silabs.com/documents/public/application-notes/an1139-cp2615-io-protocol.pdf
  */
 
+#ifdef USER_MODE
 #include <string.h>
 #include <arpa/inet.h>
+#include <stdint.h>
+#include <stddef.h>
+#else //! USER_MODE
+#include <linux/string.h>
+#include <linux/kernel.h>
+#endif //USER_MODE
+
 #include "cp2615_iop.h"
 
 int init_IOP_msg(struct IOP_msg *ret, enum IOP_msg_type msg, const void *data, size_t data_len)

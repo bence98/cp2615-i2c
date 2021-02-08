@@ -105,7 +105,6 @@ cp2615_i2c_probe(struct usb_interface *usbif, const struct usb_device_id *id)
 	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
 	adap->dev.parent = &usbif->dev;
 	adap->dev.of_node = usbif->dev.of_node;
-	adap->nr = usbif->dev.id;
 	adap->timeout = HZ;
 	adap->algo = &cp2615_i2c_algo;
     adap->quirks = &cp2615_i2c_quirks;
@@ -113,7 +112,7 @@ cp2615_i2c_probe(struct usb_interface *usbif, const struct usb_device_id *id)
 	usb_set_intfdata(usbif, adap);
 	adap->algo_data = usbif;
 
-	ret = i2c_add_numbered_adapter(adap);
+	ret = i2c_add_adapter(adap);
 	if (!ret)
 		goto out;
 	ret = usb_set_interface(usbdev, IOP_IFN, IOP_ALTSETTING);

@@ -88,7 +88,7 @@ cp2615_i2c_remove(struct usb_interface *usbif)
 	usb_set_intfdata(usbif, NULL);
 	i2c_del_adapter(adap);
 	kfree(adap);
-    dev_dbg(&usbif->dev, "Removed CP2615's I2C bus\n");
+    dev_info(&usbif->dev, "Removed CP2615's I2C bus\n");
 }
 
 static int
@@ -97,6 +97,10 @@ cp2615_i2c_probe(struct usb_interface *usbif, const struct usb_device_id *id)
 	int ret = 0;
 	struct i2c_adapter *adap;
 	struct usb_device *usbdev = interface_to_usbdev(usbif);
+
+	ret = usb_set_interface(usbdev, IOP_IFN, IOP_ALTSETTING);
+	if (ret)
+		goto out;
 
 	adap = kzalloc(sizeof(struct i2c_adapter), GFP_KERNEL);
 	if (!adap) {
@@ -112,14 +116,16 @@ cp2615_i2c_probe(struct usb_interface *usbif, const struct usb_device_id *id)
 	adap->timeout = HZ;
 	adap->algo = &cp2615_i2c_algo;
     adap->quirks = &cp2615_i2c_quirks;
-
-	usb_set_intfdata(usbif, adap);
 	adap->algo_data = usbif;
 
 	ret = i2c_add_adapter(adap);
-	if (!ret)
+	if (ret) {
+        kfree(adap);
 		goto out;
-	ret = usb_set_interface(usbdev, IOP_IFN, IOP_ALTSETTING);
+    }
+
+	usb_set_intfdata(usbif, adap);
+    dev_info(&usbif->dev, "Added CP2615's I2C bus\n");
 out:
 	return ret;
 }

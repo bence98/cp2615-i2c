@@ -5,32 +5,30 @@
 static int
 cp2615_i2c_send(struct usb_interface *usbif, struct IOP_I2cTransfer *i2c_w)
 {
-	struct IOP_msg msg;
+	struct IOP_msg *msg = kzalloc(sizeof(struct IOP_msg), GFP_KERNEL);
 	struct usb_device *usbdev = interface_to_usbdev(usbif);
-	int res = init_IOP_I2c_msg(&msg, i2c_w);
-	if (res < 0)
-		return res;
-
-	// TODO: send via USB
-    dev_dbg(&usbif->dev, "Sending %d bytes\n", ntohs(msg.length));
-	return usb_bulk_msg(usbdev, usb_sndbulkpipe(usbdev, IOP_EP_OUT), &msg, ntohs(msg.length), NULL, 0);
+	int res = init_IOP_I2c_msg(msg, i2c_w);
+	if (!res)
+		res = usb_bulk_msg(usbdev, usb_sndbulkpipe(usbdev, IOP_EP_OUT), msg, ntohs(msg->length), NULL, 0);
+    kfree(msg);
+    return res;
 }
 
 static int
 cp2615_i2c_recv(struct usb_interface *usbif, unsigned char tag, void *buf)
 {
-	struct IOP_msg msg;
-	struct IOP_I2cTransferResult *i2c_r = (struct IOP_I2cTransferResult*) &msg.data;
+	struct IOP_msg *msg = kzalloc(sizeof(struct IOP_msg), GFP_KERNEL);
+	struct IOP_I2cTransferResult *i2c_r = (struct IOP_I2cTransferResult*) &msg->data;
 	struct usb_device *usbdev = interface_to_usbdev(usbif);
-	int res = usb_bulk_msg(usbdev, usb_rcvbulkpipe(usbdev, IOP_EP_IN), &msg, sizeof(struct IOP_msg), NULL, 0);
+	int res = usb_bulk_msg(usbdev, usb_rcvbulkpipe(usbdev, IOP_EP_IN), msg, sizeof(struct IOP_msg), NULL, 0);
 	if (res < 0)
 		return res;
 
-	if (msg.msg != htons(iop_I2cTransferResult) || i2c_r->tag != tag || !i2c_r->status)
+	if (msg->msg != htons(iop_I2cTransferResult) || i2c_r->tag != tag || !i2c_r->status)
 		return -1; // TODO
 
-    dev_dbg(&usbif->dev, "Read %d bytes\n", ntohs(i2c_r->read_len));
 	memcpy(buf, &i2c_r->data, ntohs(i2c_r->read_len));
+    kfree(msg);
 	return 0;
 }
 

@@ -12,6 +12,7 @@ cp2615_i2c_send(struct usb_interface *usbif, struct IOP_I2cTransfer *i2c_w)
 		return res;
 
 	// TODO: send via USB
+    dev_dbg(&usbif->dev, "Sending %d bytes\n", ntohs(msg.length));
 	return usb_bulk_msg(usbdev, usb_sndbulkpipe(usbdev, IOP_EP_OUT), &msg, ntohs(msg.length), NULL, 0);
 }
 
@@ -28,7 +29,8 @@ cp2615_i2c_recv(struct usb_interface *usbif, unsigned char tag, void *buf)
 	if (msg.msg != htons(iop_I2cTransferResult) || i2c_r->tag != tag || !i2c_r->status)
 		return -1; // TODO
 
-	memcpy(buf, &i2c_r->data, i2c_r->read_len);
+    dev_dbg(&usbif->dev, "Read %d bytes\n", ntohs(i2c_r->read_len));
+	memcpy(buf, &i2c_r->data, ntohs(i2c_r->read_len));
 	return 0;
 }
 
@@ -39,6 +41,7 @@ cp2615_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
 	int i = 0, ret = 0;
 	struct i2c_msg *msg;
 	struct IOP_I2cTransfer i2c_w = {0};
+    dev_dbg(&usbif->dev, "Doing %d I2C transactions\n", num);
 
 	for(; !ret && i < num; i++) {
 		msg = &msgs[i];
@@ -85,6 +88,7 @@ cp2615_i2c_remove(struct usb_interface *usbif)
 	usb_set_intfdata(usbif, NULL);
 	i2c_del_adapter(adap);
 	kfree(adap);
+    dev_dbg(&usbif->dev, "Removed CP2615's I2C bus\n");
 }
 
 static int

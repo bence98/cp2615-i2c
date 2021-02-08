@@ -100,7 +100,7 @@ cp2615_i2c_probe(struct usb_interface *usbif, const struct usb_device_id *id)
 		goto out;
 	}
 
-	memcpy(adap->name, usbdev->serial, strlen(usbdev->serial));
+	strncpy(adap->name, usbdev->serial, sizeof(adap->name));
 	adap->owner = THIS_MODULE;
 	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
 	adap->dev.parent = &usbif->dev;

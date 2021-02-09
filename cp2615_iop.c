@@ -16,7 +16,7 @@
 
 #include "cp2615_iop.h"
 
-int init_IOP_msg(struct IOP_msg *ret, enum IOP_msg_type msg, const void *data, size_t data_len)
+int cp2615_init_iop_msg(struct cp2615_iop_msg *ret, enum cp2615_iop_msg_type msg, const void *data, size_t data_len)
 {
 	if (data_len > MAX_IOP_PAYLOAD_SIZE)
 		return -2;
@@ -32,7 +32,7 @@ int init_IOP_msg(struct IOP_msg *ret, enum IOP_msg_type msg, const void *data, s
         return -5;
 }
 
-int init_IOP_I2c_msg(struct IOP_msg *ret, const struct IOP_I2cTransfer *data)
+int cp2615_init_i2c_msg(struct cp2615_iop_msg *ret, const struct cp2615_i2c_transfer *data)
 {
-    return init_IOP_msg(ret, iop_DoI2cTransfer, data, 4 + data->write_len);
+    return cp2615_init_iop_msg(ret, iop_DoI2cTransfer, data, 4 + data->write_len);
 }

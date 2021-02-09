@@ -17,12 +17,12 @@ if(res<0){ \
 	exit(1);\
 }
 
-int write_IOP_msg(libusb_device_handle* dev, struct IOP_msg *msg){
+int write_IOP_msg(libusb_device_handle* dev, struct cp2615_iop_msg *msg){
 	return libusb_bulk_transfer(dev, IOP_EP_OUT, (char*)msg, ntohs(msg->length), NULL, TOUT_MS);
 }
 
-int read_IOP_msg(libusb_device_handle* dev, struct IOP_msg *msg){
-	return libusb_bulk_transfer(dev, IOP_EP_IN, (char*)msg, sizeof(struct IOP_msg), NULL, TOUT_MS);
+int read_IOP_msg(libusb_device_handle* dev, struct cp2615_iop_msg *msg){
+	return libusb_bulk_transfer(dev, IOP_EP_IN, (char*)msg, sizeof(struct cp2615_iop_msg), NULL, TOUT_MS);
 }
 
 int main(void){
@@ -32,14 +32,14 @@ int main(void){
 	libusb_claim_interface(dev, IOP_IFN);
 	libusb_set_interface_alt_setting(dev, IOP_IFN, IOP_ALTSETTING);
 	
-	struct IOP_msg msg;
+	struct cp2615_iop_msg msg;
 	int res;
-	PERROR(init_IOP_msg, &msg, iop_GetAccessoryInfo, NULL, 0);
+	PERROR(cp2615_init_iop_msg, &msg, iop_GetAccessoryInfo, NULL, 0);
 	
 	PERROR(write_IOP_msg, dev, &msg);
 	PERROR(read_IOP_msg, dev, &msg);
 	assert(msg.msg==htons(iop_AccessoryInfo));
-	struct IOP_AccessoryInfo *info=&msg.data;
+	struct cp2615_iop_accessory_info *info=&msg.data;
 	const char* part_str;
 	switch(ntohs(info->part_id)){
 		case PART_ID_A01:
@@ -53,7 +53,7 @@ int main(void){
 	}
 	printf("part %s, option_id: %04X proto_ver: %04X\n", part_str, info->option_id, info->proto_ver);
 	
-	struct IOP_I2cTransfer i2c_w={
+	struct cp2615_i2c_transfer i2c_w={
 		.tag=0x5A,
 //        .i2caddr=0b1100011,
 //        .read_len=8,
@@ -65,11 +65,11 @@ int main(void){
 		.data={0x84, 0xb8}
 	};
 	
-	PERROR(init_IOP_I2c_msg, &msg, &i2c_w);
+	PERROR(cp2615_init_i2c_msg, &msg, &i2c_w);
 	PERROR(write_IOP_msg, dev, &msg);
 	PERROR(read_IOP_msg, dev, &msg);
 	assert(msg.msg==htons(iop_I2cTransferResult));
-	struct IOP_I2cTransferResult *i2c_r=&msg.data;
+	struct cp2615_i2c_transfer_result *i2c_r=&msg.data;
 //    printf("I2C status %02X\nSi4713 Status %02X\n\tFW %d.%d.%d\n\tComponent %d.%d\n\tChip rev %d\n",
 	printf("I2C status %02X\nSi7050 FW %02X\n",
 		i2c_r->status,

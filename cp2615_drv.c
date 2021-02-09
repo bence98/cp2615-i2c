@@ -136,7 +136,7 @@ static const struct usb_device_id id_table[] = {
 MODULE_DEVICE_TABLE(usb, id_table);
 
 static struct usb_driver cp2615_i2c_driver = {
-	.name = "cp2615-i2c",
+	.name = "i2c-cp2615",
 	.probe = cp2615_i2c_probe,
 	.disconnect = cp2615_i2c_remove,
 	.id_table = id_table,

@@ -9,9 +9,11 @@
 #include <arpa/inet.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <errno.h>
 #else //! USER_MODE
 #include <linux/string.h>
 #include <linux/kernel.h>
+#include <linux/errno.h>
 #endif //USER_MODE
 
 #include "cp2615_iop.h"
@@ -19,7 +21,7 @@
 int cp2615_init_iop_msg(struct cp2615_iop_msg *ret, enum cp2615_iop_msg_type msg, const void *data, size_t data_len)
 {
 	if (data_len > MAX_IOP_PAYLOAD_SIZE)
-		return -2;
+		return -EFBIG;
 
 	if (ret) {
 		ret->preamble = 0x2A2A;
@@ -29,7 +31,7 @@ int cp2615_init_iop_msg(struct cp2615_iop_msg *ret, enum cp2615_iop_msg_type msg
 			memcpy(&ret->data, data, data_len);
         return 0;
 	} else
-        return -5;
+        return -EINVAL;
 }
 
 int cp2615_init_i2c_msg(struct cp2615_iop_msg *ret, const struct cp2615_i2c_transfer *data)

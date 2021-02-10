@@ -25,7 +25,7 @@ cp2615_i2c_recv(struct usb_interface *usbif, unsigned char tag, void *buf)
 		return res;
 
 	if (msg->msg != htons(iop_I2cTransferResult) || i2c_r->tag != tag || !i2c_r->status)
-		return -1; // TODO
+		return -EIO;
 
 	memcpy(buf, &i2c_r->data, ntohs(i2c_r->read_len));
     kfree(msg);

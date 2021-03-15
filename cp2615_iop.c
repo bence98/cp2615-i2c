@@ -39,3 +39,23 @@ int cp2615_init_i2c_msg(struct cp2615_iop_msg *ret, const struct cp2615_i2c_tran
 {
     return cp2615_init_iop_msg(ret, iop_DoI2cTransfer, data, 4 + data->write_len);
 }
+
+int cp2615_check_status(enum cp2615_i2c_status status)
+{
+	switch (status) {
+	case CP2615_SUCCESS:
+			return 0;
+	case CP2615_BUS_ERROR:
+		return -ECOMM;
+	case CP2615_BUS_BUSY:
+		return -EAGAIN;
+	case CP2615_TIMEOUT:
+		return -ETIMEDOUT;
+	case CP2615_INVALID_PARAM:
+		return -EINVAL;
+	case CP2615_CFG_LOCKED:
+		return -EPERM;
+	}
+	/* Unknown error code */
+	return -EPROTO;
+}

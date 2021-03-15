@@ -31,10 +31,14 @@ cp2615_i2c_recv(struct usb_interface *usbif, unsigned char tag, void *buf)
 	if (res < 0)
 		return res;
 
-	if (msg->msg != htons(iop_I2cTransferResult) || i2c_r->tag != tag || !i2c_r->status)
+	if (msg->msg != htons(iop_I2cTransferResult) || i2c_r->tag != tag)
 		return -EIO;
 
-	memcpy(buf, &i2c_r->data, ntohs(i2c_r->read_len));
+	res = cp2615_check_status(i2c_r->status);
+	if (res < 0)
+		return res;
+
+	memcpy(buf, &i2c_r->data, i2c_r->read_len);
 	kfree(msg);
 	return 0;
 }
@@ -62,11 +66,13 @@ cp2615_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
 			memcpy(&i2c_w.data, msg->buf, i2c_w.write_len);
 		}
 		ret = cp2615_i2c_send(usbif, &i2c_w);
-		if (ret < 0)
+		if (ret)
 			break;
 		ret = cp2615_i2c_recv(usbif, i2c_w.tag, msg->buf);
 	}
-	return ret;
+	if (ret < 0)
+		return ret;
+	return i;
 }
 
 static u32

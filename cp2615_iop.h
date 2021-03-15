@@ -50,11 +50,34 @@ struct cp2615_i2c_transfer {
 	uint8_t data[MAX_I2C_SIZE];
 };
 
+/** Possible values for struct cp2615_i2c_transfer_result.status
+ *
+ *  Values extracted from the USBXpress(r) SDK
+ */
+enum cp2615_i2c_status {
+	/* Writing to the internal EEPROM failed, because it is locked */
+	CP2615_CFG_LOCKED = -6,
+	/* read_len or write_len out of range */
+	CP2615_INVALID_PARAM = -4,
+	/* I2C slave did not ACK in time */
+	CP2615_TIMEOUT,
+	/* I2C bus busy */
+	CP2615_BUS_BUSY,
+	/* I2C bus error (ie. device NAK'd the request) */
+	CP2615_BUS_ERROR,
+	CP2615_SUCCESS
+};
+
 struct cp2615_i2c_transfer_result {
-	uint8_t tag, i2caddr, status, read_len;
+	uint8_t tag, i2caddr;
+	int8_t status;
+	uint8_t read_len;
 	uint8_t data[MAX_I2C_SIZE];
 };
 
 int cp2615_init_i2c_msg(struct cp2615_iop_msg *ret, const struct cp2615_i2c_transfer *data);
+
+/* Translates status codes to Linux errno's */
+int cp2615_check_status(enum cp2615_i2c_status status);
 
 #endif //CP2615_IOP_H

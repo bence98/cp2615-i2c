@@ -30,8 +30,9 @@ int cp2615_init_iop_msg(struct cp2615_iop_msg *ret, enum cp2615_iop_msg_type msg
 		if(data && data_len)
 			memcpy(&ret->data, data, data_len);
         return 0;
-	} else
+	} else {
         return -EINVAL;
+	}
 }
 
 int cp2615_init_i2c_msg(struct cp2615_iop_msg *ret, const struct cp2615_i2c_transfer *data)

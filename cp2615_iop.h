@@ -33,7 +33,7 @@ enum cp2615_iop_msg_type {
 
 struct cp2615_iop_msg {
 	uint16_t preamble, length, msg;
-	char data[MAX_IOP_PAYLOAD_SIZE];
+	uint8_t data[MAX_IOP_PAYLOAD_SIZE];
 };
 
 int cp2615_init_iop_msg(struct cp2615_iop_msg *ret, enum cp2615_iop_msg_type msg, const void *data, size_t data_len);
@@ -46,13 +46,13 @@ struct cp2615_iop_accessory_info {
 };
 
 struct cp2615_i2c_transfer {
-	unsigned char tag, i2caddr, read_len, write_len;
-	char data[MAX_I2C_SIZE];
+	uint8_t tag, i2caddr, read_len, write_len;
+	uint8_t data[MAX_I2C_SIZE];
 };
 
 struct cp2615_i2c_transfer_result {
-	unsigned char tag, i2caddr, status, read_len;
-	char data[MAX_I2C_SIZE];
+	uint8_t tag, i2caddr, status, read_len;
+	uint8_t data[MAX_I2C_SIZE];
 };
 
 int cp2615_init_i2c_msg(struct cp2615_iop_msg *ret, const struct cp2615_i2c_transfer *data);

@@ -1,4 +1,9 @@
 /* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * i2c support for Silicon Labs' CP2615 Digital Audio Bridge
+ *
+ * (c) 2021, Bence Csókás <bence98@sch.bme.hu>
+ */
 
 #include <linux/i2c.h>
 #include <linux/usb.h>
@@ -75,6 +80,19 @@ static const struct i2c_algorithm cp2615_i2c_algo = {
 	.functionality	= cp2615_i2c_func,
 };
 
+
+/*
+ * This chip has some limitations: one is that the USB endpoint
+ * can only receive 64 bytes/transfer, that leaves 54 bytes for
+ * the I2C transfer. On top of that, EITHER read_len OR write_len
+ * may be zero, but not both. If both are non-zero, the adapter
+ * issues a write followed by a read. And the chip does not
+ * support repeated START between the write and read phases.
+ *
+ * FIXME: There in no quirk flag for specifying that the adapter
+ * does not support empty transfers, or that it cannot emit a
+ * START condition between the combined phases.
+ */
 struct i2c_adapter_quirks cp2615_i2c_quirks = {
 	.max_write_len = MAX_I2C_SIZE,
 	.max_read_len = MAX_I2C_SIZE,

@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-2.0 */
+// SPDX-License-Identifier: GPL-2.0-or-later
 /*
  * i2c support for Silicon Labs' CP2615 Digital Audio Bridge
  *
@@ -12,9 +12,10 @@
 static int
 cp2615_i2c_send(struct usb_interface *usbif, struct cp2615_i2c_transfer *i2c_w)
 {
-	struct cp2615_iop_msg *msg = kzalloc(sizeof(struct cp2615_iop_msg), GFP_KERNEL);
+	struct cp2615_iop_msg *msg = kzalloc(sizeof(*msg), GFP_KERNEL);
 	struct usb_device *usbdev = interface_to_usbdev(usbif);
 	int res = cp2615_init_i2c_msg(msg, i2c_w);
+
 	if (!res)
 		res = usb_bulk_msg(usbdev, usb_sndbulkpipe(usbdev, IOP_EP_OUT), msg, ntohs(msg->length), NULL, 0);
 	kfree(msg);
@@ -24,10 +25,11 @@ cp2615_i2c_send(struct usb_interface *usbif, struct cp2615_i2c_transfer *i2c_w)
 static int
 cp2615_i2c_recv(struct usb_interface *usbif, unsigned char tag, void *buf)
 {
-	struct cp2615_iop_msg *msg = kzalloc(sizeof(struct cp2615_iop_msg), GFP_KERNEL);
-	struct cp2615_i2c_transfer_result *i2c_r = (struct cp2615_i2c_transfer_result*) &msg->data;
+	struct cp2615_iop_msg *msg = kzalloc(sizeof(*msg), GFP_KERNEL);
+	struct cp2615_i2c_transfer_result *i2c_r = (struct cp2615_i2c_transfer_result *)&msg->data;
 	struct usb_device *usbdev = interface_to_usbdev(usbif);
 	int res = usb_bulk_msg(usbdev, usb_rcvbulkpipe(usbdev, IOP_EP_IN), msg, sizeof(struct cp2615_iop_msg), NULL, 0);
+
 	if (res < 0)
 		return res;
 
@@ -50,9 +52,10 @@ cp2615_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
 	int i = 0, ret = 0;
 	struct i2c_msg *msg;
 	struct cp2615_i2c_transfer i2c_w = {0};
+
 	dev_dbg(&usbif->dev, "Doing %d I2C transactions\n", num);
 
-	for(; !ret && i < num; i++) {
+	for (; !ret && i < num; i++) {
 		msg = &msgs[i];
 
 		i2c_w.tag = 0xdd;
@@ -85,7 +88,6 @@ static const struct i2c_algorithm cp2615_i2c_algo = {
 	.master_xfer	= cp2615_i2c_master_xfer,
 	.functionality	= cp2615_i2c_func,
 };
-
 
 /*
  * This chip has some limitations: one is that the USB endpoint
@@ -149,7 +151,7 @@ cp2615_i2c_probe(struct usb_interface *usbif, const struct usb_device_id *id)
 }
 
 static const struct usb_device_id id_table[] = {
-	{ USB_DEVICE(CP2615_VID, CP2615_PID) },
+	{ USB_DEVICE_INTERFACE_NUMBER(CP2615_VID, CP2615_PID, IOP_IFN) },
 	{ }
 };
 

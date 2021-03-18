@@ -23,21 +23,20 @@ int cp2615_init_iop_msg(struct cp2615_iop_msg *ret, enum cp2615_iop_msg_type msg
 	if (data_len > MAX_IOP_PAYLOAD_SIZE)
 		return -EFBIG;
 
-	if (ret) {
-		ret->preamble = 0x2A2A;
-		ret->length = htons(data_len+6);
-		ret->msg = htons(msg);
-		if(data && data_len)
-			memcpy(&ret->data, data, data_len);
-        return 0;
-	} else {
-        return -EINVAL;
-	}
+	if (!ret)
+		return -EINVAL;
+
+	ret->preamble = 0x2A2A;
+	ret->length = htons(data_len + 6);
+	ret->msg = htons(msg);
+	if (data && data_len)
+		memcpy(&ret->data, data, data_len);
+	return 0;
 }
 
 int cp2615_init_i2c_msg(struct cp2615_iop_msg *ret, const struct cp2615_i2c_transfer *data)
 {
-    return cp2615_init_iop_msg(ret, iop_DoI2cTransfer, data, 4 + data->write_len);
+	return cp2615_init_iop_msg(ret, iop_DoI2cTransfer, data, 4 + data->write_len);
 }
 
 int cp2615_check_status(enum cp2615_i2c_status status)
@@ -46,7 +45,7 @@ int cp2615_check_status(enum cp2615_i2c_status status)
 	case CP2615_SUCCESS:
 			return 0;
 	case CP2615_BUS_ERROR:
-		return -ECOMM;
+		return -ENXIO;
 	case CP2615_BUS_BUSY:
 		return -EAGAIN;
 	case CP2615_TIMEOUT:

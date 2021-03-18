@@ -16,8 +16,8 @@
 #define IOP_ALTSETTING 2
 
 #define MAX_IOP_SIZE 64
-#define MAX_IOP_PAYLOAD_SIZE MAX_IOP_SIZE-6
-#define MAX_I2C_SIZE MAX_IOP_PAYLOAD_SIZE-4
+#define MAX_IOP_PAYLOAD_SIZE (MAX_IOP_SIZE - 6)
+#define MAX_I2C_SIZE (MAX_IOP_PAYLOAD_SIZE - 4)
 
 enum cp2615_iop_msg_type {
 	iop_GetAccessoryInfo = 0xD100,

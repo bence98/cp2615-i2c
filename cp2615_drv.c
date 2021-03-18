@@ -9,6 +9,11 @@
 #include <linux/usb.h>
 #include "cp2615_iop.h"
 
+#ifndef I2C_AQ_NO_REP_START
+/* NO_REP_START adapter quirk not supported by your kernel */
+#define I2C_AQ_NO_REP_START 0
+#endif //I2C_AQ_NO_REP_START
+
 static int
 cp2615_i2c_send(struct usb_interface *usbif, struct cp2615_i2c_transfer *i2c_w)
 {
@@ -17,7 +22,8 @@ cp2615_i2c_send(struct usb_interface *usbif, struct cp2615_i2c_transfer *i2c_w)
 	int res = cp2615_init_i2c_msg(msg, i2c_w);
 
 	if (!res)
-		res = usb_bulk_msg(usbdev, usb_sndbulkpipe(usbdev, IOP_EP_OUT), msg, ntohs(msg->length), NULL, 0);
+		res = usb_bulk_msg(usbdev, usb_sndbulkpipe(usbdev, IOP_EP_OUT),
+				   msg, ntohs(msg->length), NULL, 0);
 	kfree(msg);
 	return res;
 }
@@ -28,7 +34,8 @@ cp2615_i2c_recv(struct usb_interface *usbif, unsigned char tag, void *buf)
 	struct cp2615_iop_msg *msg = kzalloc(sizeof(*msg), GFP_KERNEL);
 	struct cp2615_i2c_transfer_result *i2c_r = (struct cp2615_i2c_transfer_result *)&msg->data;
 	struct usb_device *usbdev = interface_to_usbdev(usbif);
-	int res = usb_bulk_msg(usbdev, usb_rcvbulkpipe(usbdev, IOP_EP_IN), msg, sizeof(struct cp2615_iop_msg), NULL, 0);
+	int res = usb_bulk_msg(usbdev, usb_rcvbulkpipe(usbdev, IOP_EP_IN),
+			       msg, sizeof(struct cp2615_iop_msg), NULL, 0);
 
 	if (res < 0)
 		return res;
@@ -96,15 +103,11 @@ static const struct i2c_algorithm cp2615_i2c_algo = {
  * may be zero, but not both. If both are non-zero, the adapter
  * issues a write followed by a read. And the chip does not
  * support repeated START between the write and read phases.
- *
- * FIXME: There in no quirk flag for specifying that the adapter
- * does not support empty transfers, or that it cannot emit a
- * START condition between the combined phases.
  */
 struct i2c_adapter_quirks cp2615_i2c_quirks = {
 	.max_write_len = MAX_I2C_SIZE,
 	.max_read_len = MAX_I2C_SIZE,
-	.flags = I2C_AQ_COMB_WRITE_THEN_READ,
+	.flags = I2C_AQ_COMB_WRITE_THEN_READ | I2C_AQ_NO_ZERO_LEN | I2C_AQ_NO_REP_START,
 	.max_comb_1st_msg_len = MAX_I2C_SIZE,
 	.max_comb_2nd_msg_len = MAX_I2C_SIZE
 };

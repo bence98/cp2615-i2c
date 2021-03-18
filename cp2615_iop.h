@@ -36,7 +36,8 @@ struct cp2615_iop_msg {
 	uint8_t data[MAX_IOP_PAYLOAD_SIZE];
 };
 
-int cp2615_init_iop_msg(struct cp2615_iop_msg *ret, enum cp2615_iop_msg_type msg, const void *data, size_t data_len);
+int cp2615_init_iop_msg(struct cp2615_iop_msg *ret, enum cp2615_iop_msg_type msg,
+			const void *data, size_t data_len);
 
 #define PART_ID_A01 0x1400
 #define PART_ID_A02 0x1500

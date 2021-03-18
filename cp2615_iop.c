@@ -18,7 +18,8 @@
 
 #include "cp2615_iop.h"
 
-int cp2615_init_iop_msg(struct cp2615_iop_msg *ret, enum cp2615_iop_msg_type msg, const void *data, size_t data_len)
+int cp2615_init_iop_msg(struct cp2615_iop_msg *ret, enum cp2615_iop_msg_type msg,
+			const void *data, size_t data_len)
 {
 	if (data_len > MAX_IOP_PAYLOAD_SIZE)
 		return -EFBIG;

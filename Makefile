@@ -14,4 +14,4 @@ insmod:
 	sudo insmod ./i2c-cp2615.ko
 
 cp2615.bin: cp2615_iop.c cp2615_usb.c
-	gcc -DUSER_MODE -g $^ -lusb-1.0 -o $@
+	gcc -g $^ -lusb-1.0 -o $@

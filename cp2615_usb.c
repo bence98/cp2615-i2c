@@ -6,6 +6,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+typedef uint16_t __be16;
+typedef uint8_t u8;
+typedef int8_t s8;
 
 #include "cp2615_iop.h"
 

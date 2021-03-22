@@ -4,17 +4,20 @@
  *  Source: https://www.silabs.com/documents/public/application-notes/an1139-cp2615-io-protocol.pdf
  */
 
-#ifdef USER_MODE
+#ifndef __KERNEL__
 #include <string.h>
 #include <arpa/inet.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <errno.h>
-#else //! USER_MODE
-#include <linux/string.h>
-#include <linux/kernel.h>
+typedef uint16_t __be16;
+typedef uint8_t u8;
+typedef int8_t s8;
+#else //__KERNEL__
 #include <linux/errno.h>
-#endif //USER_MODE
+#include <linux/kernel.h>
+#include <linux/string.h>
+#endif //__KERNEL__
 
 #include "cp2615_iop.h"
 

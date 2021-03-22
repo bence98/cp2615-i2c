@@ -32,8 +32,8 @@ enum cp2615_iop_msg_type {
 };
 
 struct cp2615_iop_msg {
-	uint16_t preamble, length, msg;
-	uint8_t data[MAX_IOP_PAYLOAD_SIZE];
+	__be16 preamble, length, msg;
+	u8 data[MAX_IOP_PAYLOAD_SIZE];
 };
 
 int cp2615_init_iop_msg(struct cp2615_iop_msg *ret, enum cp2615_iop_msg_type msg,
@@ -43,12 +43,12 @@ int cp2615_init_iop_msg(struct cp2615_iop_msg *ret, enum cp2615_iop_msg_type msg
 #define PART_ID_A02 0x1500
 
 struct cp2615_iop_accessory_info {
-	uint16_t part_id, option_id, proto_ver;
+	__be16 part_id, option_id, proto_ver;
 };
 
 struct cp2615_i2c_transfer {
-	uint8_t tag, i2caddr, read_len, write_len;
-	uint8_t data[MAX_I2C_SIZE];
+	u8 tag, i2caddr, read_len, write_len;
+	u8 data[MAX_I2C_SIZE];
 };
 
 /** Possible values for struct cp2615_i2c_transfer_result.status
@@ -70,10 +70,10 @@ enum cp2615_i2c_status {
 };
 
 struct cp2615_i2c_transfer_result {
-	uint8_t tag, i2caddr;
-	int8_t status;
-	uint8_t read_len;
-	uint8_t data[MAX_I2C_SIZE];
+	u8 tag, i2caddr;
+	s8 status;
+	u8 read_len;
+	u8 data[MAX_I2C_SIZE];
 };
 
 int cp2615_init_i2c_msg(struct cp2615_iop_msg *ret, const struct cp2615_i2c_transfer *data);

@@ -37,19 +37,64 @@ cp2615_i2c_recv(struct usb_interface *usbif, unsigned char tag, void *buf)
 	int res = usb_bulk_msg(usbdev, usb_rcvbulkpipe(usbdev, IOP_EP_IN),
 			       msg, sizeof(struct cp2615_iop_msg), NULL, 0);
 
-	if (res < 0)
+	if (res < 0) {
+		kfree(msg);
 		return res;
+	}
 
-	if (msg->msg != htons(iop_I2cTransferResult) || i2c_r->tag != tag)
+	if (msg->msg != htons(iop_I2cTransferResult) || i2c_r->tag != tag) {
+		kfree(msg);
 		return -EIO;
+	}
 
 	res = cp2615_check_status(i2c_r->status);
-	if (res < 0)
-		return res;
+	if (!res)
+		memcpy(buf, &i2c_r->data, i2c_r->read_len);
 
-	memcpy(buf, &i2c_r->data, i2c_r->read_len);
 	kfree(msg);
-	return 0;
+	return res;
+}
+
+/* Checks if the IOP is functional by querying the part's ID */
+int cp2615_check_iop(struct usb_interface *usbif)
+{
+	struct cp2615_iop_msg *msg = kzalloc(sizeof(*msg), GFP_KERNEL);
+	struct cp2615_iop_accessory_info *info = (struct cp2615_iop_accessory_info *)&msg->data;
+	struct usb_device *usbdev = interface_to_usbdev(usbif);
+	int res = cp2615_init_iop_msg(msg, iop_GetAccessoryInfo, NULL, 0);
+
+	if (res)
+		goto out;
+
+	res = usb_bulk_msg(usbdev, usb_sndbulkpipe(usbdev, IOP_EP_OUT),
+				   msg, ntohs(msg->length), NULL, 0);
+	if (res)
+		goto out;
+
+	res = usb_bulk_msg(usbdev, usb_rcvbulkpipe(usbdev, IOP_EP_IN),
+			       msg, sizeof(struct cp2615_iop_msg), NULL, 0);
+	if (res)
+		goto out;
+
+	if (msg->msg != htons(iop_AccessoryInfo)) {
+		res = -EIO;
+		goto out;
+	}
+
+	switch (ntohs(info->part_id)) {
+	case PART_ID_A01:
+		dev_dbg(&usbif->dev, "Found A01 part. (WARNING: errata exist!)\n");
+		break;
+	case PART_ID_A02:
+		dev_dbg(&usbif->dev, "Found good A02 part.\n");
+		break;
+	default:
+		dev_warn(&usbif->dev, "Unknown part ID %04X\n", ntohs(info->part_id));
+	}
+
+out:
+	kfree(msg);
+	return res;
 }
 
 static int
@@ -129,6 +174,10 @@ cp2615_i2c_probe(struct usb_interface *usbif, const struct usb_device_id *id)
 	struct usb_device *usbdev = interface_to_usbdev(usbif);
 
 	ret = usb_set_interface(usbdev, IOP_IFN, IOP_ALTSETTING);
+	if (ret)
+		return ret;
+
+	ret = cp2615_check_iop(usbif);
 	if (ret)
 		return ret;
 

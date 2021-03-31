@@ -56,7 +56,7 @@ cp2615_i2c_recv(struct usb_interface *usbif, unsigned char tag, void *buf)
 }
 
 /* Checks if the IOP is functional by querying the part's ID */
-int cp2615_check_iop(struct usb_interface *usbif)
+static int cp2615_check_iop(struct usb_interface *usbif)
 {
 	struct cp2615_iop_msg *msg = kzalloc(sizeof(*msg), GFP_KERNEL);
 	struct cp2615_iop_accessory_info *info = (struct cp2615_iop_accessory_info *)&msg->data;
@@ -149,7 +149,7 @@ static const struct i2c_algorithm cp2615_i2c_algo = {
  * issues a write followed by a read. And the chip does not
  * support repeated START between the write and read phases.
  */
-struct i2c_adapter_quirks cp2615_i2c_quirks = {
+static struct i2c_adapter_quirks cp2615_i2c_quirks = {
 	.max_write_len = MAX_I2C_SIZE,
 	.max_read_len = MAX_I2C_SIZE,
 	.flags = I2C_AQ_COMB_WRITE_THEN_READ | I2C_AQ_NO_ZERO_LEN | I2C_AQ_NO_REP_START,
@@ -185,7 +185,7 @@ cp2615_i2c_probe(struct usb_interface *usbif, const struct usb_device_id *id)
 	if (!adap)
 		return -ENOMEM;
 
-	strncpy(adap->name, usbdev->serial, sizeof(adap->name));
+	strncpy(adap->name, usbdev->serial, sizeof(adap->name) - 1);
 	adap->owner = THIS_MODULE;
 	adap->dev.parent = &usbif->dev;
 	adap->dev.of_node = usbif->dev.of_node;
@@ -199,7 +199,7 @@ cp2615_i2c_probe(struct usb_interface *usbif, const struct usb_device_id *id)
 		return ret;
 
 	usb_set_intfdata(usbif, adap);
-	return ret;
+	return 0;
 }
 
 static const struct usb_device_id id_table[] = {

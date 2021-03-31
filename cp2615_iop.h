@@ -51,7 +51,8 @@ struct __attribute__((packed)) cp2615_i2c_transfer {
 	u8 data[MAX_I2C_SIZE];
 };
 
-/** Possible values for struct cp2615_i2c_transfer_result.status
+/*
+ * Possible values for struct cp2615_i2c_transfer_result.status
  *
  *  Values extracted from the USBXpress(r) SDK
  */

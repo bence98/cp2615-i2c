@@ -6,6 +6,7 @@
  */
 
 #include <linux/i2c.h>
+#include <linux/module.h>
 #include <linux/usb.h>
 #include "cp2615_iop.h"
 

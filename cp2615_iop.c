@@ -13,6 +13,7 @@
 typedef uint16_t __be16;
 typedef uint8_t u8;
 typedef int8_t s8;
+#define __packed __attribute__((packed))
 #else //__KERNEL__
 #include <linux/errno.h>
 #include <linux/kernel.h>

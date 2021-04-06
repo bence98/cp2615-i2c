@@ -31,7 +31,7 @@ enum cp2615_iop_msg_type {
 	iop_SerialState = 0xA501
 };
 
-struct __attribute__((packed)) cp2615_iop_msg {
+struct __packed cp2615_iop_msg {
 	__be16 preamble, length, msg;
 	u8 data[MAX_IOP_PAYLOAD_SIZE];
 };
@@ -42,11 +42,11 @@ int cp2615_init_iop_msg(struct cp2615_iop_msg *ret, enum cp2615_iop_msg_type msg
 #define PART_ID_A01 0x1400
 #define PART_ID_A02 0x1500
 
-struct __attribute__((packed)) cp2615_iop_accessory_info {
+struct __packed cp2615_iop_accessory_info {
 	__be16 part_id, option_id, proto_ver;
 };
 
-struct __attribute__((packed)) cp2615_i2c_transfer {
+struct __packed cp2615_i2c_transfer {
 	u8 tag, i2caddr, read_len, write_len;
 	u8 data[MAX_I2C_SIZE];
 };
@@ -70,7 +70,7 @@ enum cp2615_i2c_status {
 	CP2615_SUCCESS
 };
 
-struct __attribute__((packed)) cp2615_i2c_transfer_result {
+struct __packed cp2615_i2c_transfer_result {
 	u8 tag, i2caddr;
 	s8 status;
 	u8 read_len;
